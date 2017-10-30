@@ -2,6 +2,7 @@
 *.pyc
 
 src/config.yaml
+src/config.dict
 
 .idea
 *.sw?
