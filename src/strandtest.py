@@ -6,6 +6,7 @@
 import time
 import logging
 import threading
+import socket
 from collections import deque
 from neopixel import *
 
@@ -171,4 +172,20 @@ if __name__ == '__main__':
 	#rainbowCycle(strip)
 	#theaterChaseRainbow(strip)
 	#colorWipe(strip, Color(0, 0, 0))  # Green wipe
-        sunrise(strip, 30)
+        t1_stop= threading.Event()
+        UDP_IP="127.0.0.1"
+        UDP_PORT=5005
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind((UDP_IP, UDP_PORT))
+        while True:
+            data, addr = sock.recvfrom(1024)
+            print "received message:", data
+            command = data.split(':')[0]
+            if command == "start":
+                atime = int(data.split(':')[1])
+                thread = threading.Thread(target = sunrise, args= (strip, atime, t1_stop))
+                thread.start()
+            elif command == "stop":
+                print "Stopping"
+                t1_stop.set()
+                doDarkness()
