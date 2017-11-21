@@ -189,3 +189,4 @@ if __name__ == '__main__':
                 print "Stopping"
                 t1_stop.set()
                 doDarkness()
+        socket.close()
