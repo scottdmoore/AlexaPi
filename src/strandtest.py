@@ -173,6 +173,7 @@ if __name__ == '__main__':
 	#theaterChaseRainbow(strip)
 	#colorWipe(strip, Color(0, 0, 0))  # Green wipe
         t1_stop= threading.Event()
+        timer = None
         UDP_IP="127.0.0.1"
         UDP_PORT=5005
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -182,11 +183,25 @@ if __name__ == '__main__':
             print "received message:", data
             command = data.split(':')[0]
             if command == "start":
+                t1_stop.clear()
+                try:
+                    timer.cancel()
+                except:
+                    pass
                 atime = int(data.split(':')[1])
-                thread = threading.Thread(target = sunrise, args= (strip, atime, t1_stop))
-                thread.start()
+                print "atime: "+ str(atime)
+                if atime < 1800:
+                    thread = threading.Thread(target = sunrise, args= (strip, atime, t1_stop))
+                    thread.start()
+                else:
+                    timer = threading.Timer(atime-1800, sunrise, [strip, 1800, t1_stop])
+                    timer.start()
             elif command == "stop":
                 print "Stopping"
+                try:
+                    timer.cancel()
+                except:
+                    pass
                 t1_stop.set()
                 doDarkness()
         socket.close()
